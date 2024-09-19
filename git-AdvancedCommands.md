@@ -60,7 +60,7 @@ git merge <branch_name>
 ```
 
 #### **Rebasing**
-Rebasing re-applies your changes on top of another branch. It rewrites commit history, making the history cleaner but more dangerous if done incorrectly.
+Rebasing re-applies your changes on top of another branch. It rewrites commit history, making the history cleaner but more `dangerous` if done incorrectly.
 ```bash
 git rebase <branch_name>
 ```
@@ -214,3 +214,212 @@ GitFlow is a widely-used branching model for managing project development. It in
 
 #### **Forking Workflow:**
 In the Forking Workflow, each developer forks (copies) the main repository and works on their fork, then submits a **pull request** to the original repository for their changes to be reviewed and merged.
+
+
+## Example Git Advanced Workflow
+
+1. **Cloning a remote repository**  
+2. **Creating and switching to a new feature branch**
+3. **Committing changes with signed commits**
+4. **Pushing to the remote repository**
+5. **Rebasing against the main branch**
+6. **Handling merge conflicts**
+7. **Squashing commits**
+8. **Using cherry-pick**
+9. **Tagging a release**
+10. **Using a Git hook for pre-commit checks**
+
+---
+
+### **Step-by-Step Workflow Example**
+
+#### **1. Clone the Remote Repository**
+Let’s say you want to start working on a project. First, you clone the repository.
+
+```bash
+git clone https://github.com/username/project-repo.git
+cd project-repo
+```
+
+---
+
+#### **2. Create and Switch to a New Feature Branch**
+In Git, it's common to work on separate branches for different features or bug fixes.
+
+```bash
+git checkout -b feature/new-awesome-feature
+```
+
+- **`-b`** creates and switches to the new branch.
+- You are now in the `feature/new-awesome-feature` branch.
+
+---
+
+#### **3. Commit Changes with Signed Commits**
+You’ve made some changes, and now you want to commit them. For added security or compliance, you can sign your commits.
+
+```bash
+git commit -S -m "Add new awesome feature"
+```
+
+- **`-S`** ensures that your commit is signed using your GPG key.
+
+To view signed commits:
+```bash
+git log --show-signature
+```
+
+---
+
+#### **4. Push Your Branch to the Remote Repository**
+Now that you’ve committed your changes, you want to push them to the remote repository.
+
+```bash
+git push origin feature/new-awesome-feature
+```
+
+This will push the `feature/new-awesome-feature` branch to the remote repository.
+
+---
+
+#### **5. Rebasing Against the Main Branch**
+Before merging your branch, it’s a good practice to rebase it against the latest `main` branch to ensure it's up-to-date.
+
+```bash
+git fetch origin
+git checkout main
+git pull origin main  # Ensure your local main is up to date
+git checkout feature/new-awesome-feature
+git rebase main
+```
+
+This will apply your commits on top of the latest changes in `main`.
+
+---
+
+#### **6. Handling Merge Conflicts**
+If conflicts arise during rebase, Git will pause and indicate which files have conflicts.
+
+1. Edit the conflicting files to resolve conflicts.
+2. Stage the resolved files:
+   ```bash
+   git add <file>
+   ```
+3. Continue the rebase:
+   ```bash
+   git rebase --continue
+   ```
+
+---
+
+#### **7. Squashing Commits**
+Let’s say you have several commits that could be condensed into one before merging. You can **squash** them using an interactive rebase.
+
+```bash
+git rebase -i HEAD~4
+```
+
+This opens an editor showing the last 4 commits. Replace the word `pick` with `squash` (or just `s`) for the commits you want to combine.
+
+Afterward, you’ll be prompted to rewrite the commit message for the squashed commits.
+
+---
+
+#### **8. Cherry-Picking Commits**
+Let’s say there’s a specific commit from another branch that you want to apply to your current branch without merging the whole branch.
+
+```bash
+git cherry-pick <commit_hash>
+```
+
+This will apply just that commit to your current branch.
+
+---
+
+#### **9. Tagging a Release**
+Once the feature is complete and merged, you may want to tag the release for easy reference.
+
+```bash
+git checkout main
+git pull origin main  # Make sure you're on the latest main
+git tag -a v1.0.0 -m "Version 1.0.0 release"
+git push origin v1.0.0
+```
+
+This will create an annotated tag for version `v1.0.0` and push it to the remote repository.
+
+---
+
+#### **10. Git Hook for Pre-Commit Checks**
+Git hooks can help ensure code quality by running checks before a commit is made.
+
+To set up a **pre-commit hook**:
+
+1. Create a new hook in your local repo:
+   ```bash
+   nano .git/hooks/pre-commit
+   ```
+
+2. Add a simple shell script for running tests or linters:
+   ```bash
+   #!/bin/bash
+   npm test
+   if [ $? -ne 0 ]; then
+     echo "Tests failed, commit aborted!"
+     exit 1
+   fi
+   ```
+
+3. Save and exit, then make it executable:
+   ```bash
+   chmod +x .git/hooks/pre-commit
+   ```
+
+Now, every time you try to commit, it will run your tests. If they fail, the commit will be aborted.
+
+---
+
+### **Putting it All Together**
+Here’s what an **Advanced Git Workflow** might look like in sequence:
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/username/project-repo.git
+cd project-repo
+
+# 2. Create and switch to a new feature branch
+git checkout -b feature/new-awesome-feature
+
+# 3. Make changes and commit them with a signed commit
+git commit -S -m "Add new awesome feature"
+
+# 4. Push your changes to the remote repository
+git push origin feature/new-awesome-feature
+
+# 5. Rebase against the main branch
+git fetch origin
+git checkout main
+git pull origin main
+git checkout feature/new-awesome-feature
+git rebase main
+
+# 6. Resolve any merge conflicts if needed
+# (resolve conflicts, then run `git rebase --continue`)
+
+# 7. Squash multiple commits
+git rebase -i HEAD~4
+
+# 8. Cherry-pick a specific commit from another branch
+git cherry-pick <commit_hash>
+
+# 9. Tag the release
+git checkout main
+git pull origin main
+git tag -a v1.0.0 -m "Version 1.0.0 release"
+git push origin v1.0.0
+
+# 10. Pre-commit hook to run tests automatically before committing
+# (already set up in .git/hooks/pre-commit)
+```
+
+This workflow includes advanced concepts that help maintain a clean, organized, and collaborative repository while ensuring the quality of your code.
